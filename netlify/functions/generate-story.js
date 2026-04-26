@@ -106,29 +106,66 @@ OUTPUT FORMAT — return ONLY valid JSON, no markdown fences, no preamble, no tr
   ]
 }`;
 
-    // ── Call Claude ───────────────────────────────────────────────────────────
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 4000,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    const rawText = message.content[0].text.trim();
-
-    // ── Parse story JSON ──────────────────────────────────────────────────────
+    // ── MOCK MODE: set MOCK_STORY=true in Netlify env vars to bypass Claude ────
+    // Use this to test PayPal + Printify + email without spending API credits.
+    // Remove MOCK_STORY (or set to false) when you top up Anthropic credits.
     let story;
-    try {
-      story = JSON.parse(rawText);
-    } catch {
-      const match = rawText.match(/\{[\s\S]*\}/);
-      if (match) story = JSON.parse(match[0]);
-      else throw new Error('Could not parse story. Please try again.');
-    }
 
-    if (!story.title || !Array.isArray(story.chapters) || story.chapters.length !== 4) {
-      throw new Error('Story structure was invalid. Please try again.');
+    if (process.env.MOCK_STORY === 'true') {
+      console.log('[generate-story] MOCK MODE — returning test story (no Claude API call)');
+      story = {
+        title: `${name.trim()} and the Magic ${selectedTheme.charAt(0).toUpperCase() + selectedTheme.slice(1)} Adventure`,
+        tagline: `A brave young hero discovers that the greatest magic of all lives within.`,
+        chapters: [
+          {
+            number: 1,
+            title: 'The Mysterious Map',
+            text: `Once upon a time, in a cosy little house at the edge of a great forest, there lived a child named ${name.trim()}. ${name.trim()} was ${age} years old and loved adventures more than anything in the world. One bright morning, ${name.trim()} discovered a rolled-up piece of old paper tucked beneath the garden gate. It was a map — drawn in golden ink — showing a path that wound deep into the ${selectedTheme} beyond the hill. "This must be a treasure map!" ${name.trim()} whispered, eyes wide with wonder. Without wasting another moment, ${name.trim()} packed a small bag with a biscuit, a bottle of water, and a torch, and set off down the winding path. The trees rustled in the breeze as if whispering a secret. Every step felt like the beginning of something magical. And it was.`,
+            illustrationPrompt: `A cheerful ${age}-year-old child named ${name.trim()} standing at the edge of a magical ${selectedTheme}, holding a glowing golden map, watercolour children's book style, warm morning light, soft greens and golds, wonder and excitement on their face.`,
+          },
+          {
+            number: 2,
+            title: 'New Friends Appear',
+            text: `Deep in the ${selectedTheme}, ${name.trim()} came across the most extraordinary sight. A small friendly creature was tangled in a cluster of vines, squeaking softly for help. ${name.trim()} didn't hesitate for even a second. Carefully and gently, ${name.trim()} untangled every vine until the creature was free. "Thank you!" it cried, shaking its fluffy ears. "My name is Pip, and I know these lands like the back of my paw." Pip offered to guide ${name.trim()} to the treasure marked on the map. Together they skipped through sun-dappled clearings and over mossy stepping stones, laughing and chatting as if they had been friends forever. ${name.trim()} felt brave and warm inside — the kind of warmth that only comes from doing something truly kind.`,
+            illustrationPrompt: `${name.trim()} carefully freeing a small fluffy magical creature called Pip from tangled vines in a lush ${selectedTheme} clearing, watercolour children's book style, dappled sunlight, soft warm colours, both characters smiling.`,
+          },
+          {
+            number: 3,
+            title: 'The Big Challenge',
+            text: `The path grew trickier as ${name.trim()} and Pip approached the heart of the ${selectedTheme}. A wide rushing river blocked the way, and the old wooden bridge had three broken planks right in the middle. Pip looked worried. "I don't think we can cross," Pip said sadly. But ${name.trim()} looked around thoughtfully. Nearby lay three flat stones, just the right size. One by one, ${name.trim()} placed the stones carefully across the gap until a safe path appeared. "You did it!" Pip cheered, clapping tiny paws together. ${name.trim()} smiled proudly — not because it was easy, but because it had seemed hard and they'd done it anyway. That, ${name.trim()} was learning, was what real bravery felt like.`,
+            illustrationPrompt: `${name.trim()} placing flat stepping stones across a cheerful rushing river in the ${selectedTheme}, Pip the fluffy creature watching and cheering, watercolour children's book style, bright colours, sense of determination and triumph.`,
+          },
+          {
+            number: 4,
+            title: 'The Greatest Treasure',
+            text: `At last, ${name.trim()} and Pip reached the spot marked with a golden star on the map. Beneath an ancient twisted tree sat a small wooden chest, half-hidden in soft moss. ${name.trim()} knelt down and opened it slowly. Inside was no gold or jewels — but a small round mirror. ${name.trim()} looked in and saw something wonderful: a reflection full of bravery, kindness, and adventure. A tiny note read: "The greatest treasure is already inside you." ${name.trim()} laughed with delight and hugged Pip tightly. Together they made their way home as the sun painted the sky in shades of pink and orange. That night, tucked up in bed, ${name.trim()} thought about the map, the bridge, and brave little Pip — and smiled a smile that stretched all the way to their ears. The end.`,
+            illustrationPrompt: `${name.trim()} opening a small wooden treasure chest under an ancient magical tree to find a glowing mirror, Pip the fluffy creature beside them, warm sunset light in the ${selectedTheme} background, watercolour children's book style, heartwarming and magical.`,
+          },
+        ],
+      };
+    } else {
+      // ── LIVE: Call Claude API ───────────────────────────────────────────────
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: prompt }],
+      });
+
+      const rawText = message.content[0].text.trim();
+
+      try {
+        story = JSON.parse(rawText);
+      } catch {
+        const match = rawText.match(/\{[\s\S]*\}/);
+        if (match) story = JSON.parse(match[0]);
+        else throw new Error('Could not parse story. Please try again.');
+      }
+
+      if (!story.title || !Array.isArray(story.chapters) || story.chapters.length !== 4) {
+        throw new Error('Story structure was invalid. Please try again.');
+      }
     }
 
     // ── Attach Pollinations.ai illustration URLs ───────────────────────────────
