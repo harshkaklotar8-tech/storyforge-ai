@@ -1,0 +1,19 @@
+{
+  "name": "storyforge-netlify",
+  "version": "1.0.0",
+  "description": "StoryForge AI — Netlify Functions backend",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step needed'"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

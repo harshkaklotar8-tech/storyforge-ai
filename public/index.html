@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoryForge AI — A storybook where your child is the hero</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #FAF7F2;
+    --cream2: #F3EDE3;
+    --bark: #2C1F0E;
+    --bark-light: #5C3D1E;
+    --forest: #2D5A27;
+    --forest-light: #4A8C42;
+    --forest-pale: #E8F4E6;
+    --gold: #C8892A;
+    --gold-pale: #FDF3E3;
+    --coral: #D4603A;
+    --sky: #A8C8E8;
+    --text: #1A1208;
+    --text-muted: #7A6845;
+    --text-light: #AE9870;
+    --border: rgba(44,31,14,0.12);
+    --border-strong: rgba(44,31,14,0.22);
+    --serif: 'Lora', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  html { scroll-behavior: smooth; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  body {
+    font-family: var(--sans);
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,247,242,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    color: var(--bark);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-logo .leaf { color: var(--forest); }
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+  .nav-links a { font-size: 0.875rem; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--bark); }
+  .nav-cta {
+    font-family: var(--sans); font-weight: 500; font-size: 0.875rem;
+    background: var(--forest); color: #fff;
+    border: none; border-radius: 40px; padding: 9px 20px;
+    cursor: pointer; transition: background 0.2s, transform 0.15s;
+  }
+  .nav-cta:hover { background: var(--forest-light); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 90vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 80px 5% 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 80%, rgba(168,200,232,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 80% 20%, rgba(200,137,42,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 50% 50%, rgba(45,90,39,0.06) 0%, transparent 80%);
+    pointer-events: none;
+  }
+  /* Floating decorative dots */
+  .hero-bg::before {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    border: 1px solid rgba(44,31,14,0.06);
+    top: 10%; left: -5%;
+    animation: float1 8s ease-in-out infinite;
+  }
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 1px solid rgba(200,137,42,0.1);
+    bottom: 15%; right: -3%;
+    animation: float2 10s ease-in-out infinite;
+  }
+  @keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
+  @keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(16px)} }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em;
+    background: var(--gold-pale); color: var(--gold);
+    border: 1px solid rgba(200,137,42,0.25);
+    border-radius: 40px; padding: 5px 14px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 600;
+    line-height: 1.18;
+    color: var(--bark);
+    max-width: 700px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+  .hero h1 em { color: var(--forest); font-style: italic; }
+
+  .hero-sub {
+    font-size: 1.05rem; color: var(--text-muted);
+    max-width: 480px;
+    margin-bottom: 36px;
+    line-height: 1.7;
+    animation: fadeUp 0.6s ease 0.2s both;
+  }
+
+  .hero-btns {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 60px;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+  .btn-primary {
+    font-family: var(--sans); font-weight: 500; font-size: 1rem;
+    background: var(--forest); color: #fff;
+    border: none; border-radius: 50px; padding: 14px 28px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--forest-light); transform: translateY(-2px); }
+  .btn-outline {
+    font-family: var(--sans); font-weight: 400; font-size: 1rem;
+    background: transparent; color: var(--bark);
+    border: 1px solid var(--border-strong); border-radius: 50px; padding: 14px 28px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-outline:hover { background: var(--cream2); }
+
+  /* Floating books */
+  .floating-books {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  .book {
+    width: 100px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  .book:nth-child(1) { transform: rotate(-3deg); animation: bookFloat1 5s ease-in-out infinite; }
+  .book:nth-child(2) { transform: rotate(1deg); animation: bookFloat2 6s ease-in-out infinite 0.5s; }
+  .book:nth-child(3) { transform: rotate(-1.5deg); animation: bookFloat1 7s ease-in-out infinite 1s; }
+  .book:nth-child(4) { transform: rotate(2.5deg); animation: bookFloat2 5.5s ease-in-out infinite 0.3s; }
+  .book:hover { transform: rotate(0deg) translateY(-6px) scale(1.05) !important; }
+  @keyframes bookFloat1 { 0%,100%{transform:rotate(-3deg) translateY(0)} 50%{transform:rotate(-3deg) translateY(-8px)} }
+  @keyframes bookFloat2 { 0%,100%{transform:rotate(1deg) translateY(0)} 50%{transform:rotate(1deg) translateY(-10px)} }
+
+  .book-cover {
+    height: 120px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+  }
+  .book-label {
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  /* STATS STRIP */
+  .stats-strip {
+    background: var(--bark);
+    padding: 28px 5%;
+    display: flex; justify-content: center; gap: 60px; flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: var(--serif); font-size: 1.8rem; color: var(--gold); font-weight: 600; }
+  .stat-label { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+  /* HOW IT WORKS */
+  .section { padding: 90px 5%; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--forest);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    color: var(--bark);
+    line-height: 1.25;
+    margin-bottom: 16px;
+  }
+  .section-sub { font-size: 1rem; color: var(--text-muted); max-width: 460px; line-height: 1.7; }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2px;
+    margin-top: 56px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--border);
+  }
+  .step-card {
+    background: var(--cream);
+    padding: 36px 28px;
+    transition: background 0.2s;
+  }
+  .step-card:hover { background: var(--cream2); }
+  .step-number {
+    font-family: var(--serif); font-size: 3rem; font-weight: 600;
+    color: var(--border-strong);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .step-icon { font-size: 2rem; margin-bottom: 12px; }
+  .step-title { font-family: var(--serif); font-size: 1.15rem; color: var(--bark); margin-bottom: 10px; }
+  .step-desc { font-size: 0.875rem; color: var(--text-muted); line-height: 1.65; }
+
+  /* ORDER FORM */
+  .form-section {
+    background: var(--cream2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .form-inner {
+    max-width: 960px; margin: 0 auto;
+    padding: 90px 5%;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start;
+  }
+  .form-left {}
+  .form-right {
+    background: #fff;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 36px;
+  }
+  .form-title { font-family: var(--serif); font-size: 1rem; color: var(--bark); margin-bottom: 4px; }
+  .form-sub-text { font-size: 0.8rem; color: var(--text-light); margin-bottom: 24px; }
+
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block; font-size: 0.8rem; font-weight: 500;
+    color: var(--text-muted); margin-bottom: 6px;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%; font-family: var(--sans); font-size: 0.9rem;
+    padding: 11px 14px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: var(--cream);
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    appearance: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--forest);
+    box-shadow: 0 0 0 3px rgba(45,90,39,0.1);
+  }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .theme-picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 6px; }
+  .theme-opt {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--cream);
+  }
+  .theme-opt:hover { border-color: var(--forest); background: var(--forest-pale); }
+  .theme-opt.selected { border-color: var(--forest); background: var(--forest-pale); }
+  .theme-opt .t-icon { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+  .theme-opt .t-name { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
+
+  .form-submit {
+    width: 100%; font-family: var(--sans); font-size: 1rem; font-weight: 500;
+    background: var(--forest); color: #fff;
+    border: none; border-radius: var(--radius-sm); padding: 14px;
+    cursor: pointer; margin-top: 20px;
+    transition: all 0.2s;
+  }
+  .form-submit:hover { background: var(--forest-light); }
+  .form-submit:active { transform: scale(0.99); }
+
+  .form-trust {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; justify-content: center;
+  }
+  .trust-item { font-size: 0.72rem; color: var(--text-light); display: flex; align-items: center; gap: 4px; }
+  .trust-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--forest); }
+
+  /* PRICING */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-top: 52px;
+  }
+  .price-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    position: relative;
+    transition: transform 0.2s;
+  }
+  .price-card:hover { transform: translateY(-4px); }
+  .price-card.featured {
+    border-color: var(--forest);
+    border-width: 2px;
+  }
+  .featured-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--forest); color: #fff;
+    font-size: 0.7rem; font-weight: 500;
+    padding: 4px 14px; border-radius: 20px;
+  }
+  .price-icon { font-size: 2.2rem; margin-bottom: 14px; }
+  .price-name { font-family: var(--serif); font-size: 1.2rem; color: var(--bark); margin-bottom: 6px; }
+  .price-amount { font-size: 2.2rem; font-weight: 600; color: var(--bark); margin-bottom: 4px; }
+  .price-amount span { font-size: 1rem; font-weight: 400; color: var(--text-light); }
+  .price-desc { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+  .price-features { list-style: none; margin-bottom: 24px; }
+  .price-features li {
+    font-size: 0.83rem; color: var(--text-muted);
+    padding: 6px 0; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .price-features li:last-child { border-bottom: none; }
+  .check { color: var(--forest); font-weight: 600; }
+  .price-btn {
+    width: 100%; font-family: var(--sans); font-size: 0.9rem; font-weight: 500;
+    padding: 12px; border-radius: var(--radius-sm);
+    cursor: pointer; transition: all 0.2s; border: none;
+  }
+  .price-btn-primary { background: var(--forest); color: #fff; }
+  .price-btn-primary:hover { background: var(--forest-light); }
+  .price-btn-outline { background: transparent; color: var(--bark); border: 1px solid var(--border-strong) !important; }
+  .price-btn-outline:hover { background: var(--cream2); }
+
+  /* TESTIMONIALS */
+  .testimonials-section { background: var(--bark); padding: 90px 5%; }
+  .testimonials-section .section-label { color: var(--gold); }
+  .testimonials-section .section-title { color: #fff; }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 52px;
+  }
+  .testi-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+  .testi-stars { color: var(--gold); font-size: 0.9rem; margin-bottom: 14px; }
+  .testi-text {
+    font-family: var(--serif); font-style: italic;
+    font-size: 1rem; color: rgba(255,255,255,0.85); line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .testi-author { display: flex; align-items: center; gap: 12px; }
+  .testi-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--gold-pale);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 600; color: var(--bark);
+  }
+  .testi-name { font-size: 0.85rem; font-weight: 500; color: #fff; }
+  .testi-meta { font-size: 0.75rem; color: rgba(255,255,255,0.45); }
+
+  /* FAQ */
+  .faq-grid { max-width: 720px; margin: 52px auto 0; }
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 22px 0;
+    cursor: pointer;
+  }
+  .faq-q {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--serif); font-size: 1rem; color: var(--bark);
+    user-select: none;
+  }
+  .faq-arrow { transition: transform 0.25s; color: var(--text-light); font-size: 1.2rem; }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); }
+  .faq-a {
+    font-size: 0.9rem; color: var(--text-muted); line-height: 1.7;
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+  .faq-item.open .faq-a { max-height: 200px; padding-top: 14px; }
+
+  /* FOOTER */
+  footer {
+    background: var(--bark);
+    padding: 52px 5% 32px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    flex-wrap: wrap; gap: 32px; margin-bottom: 40px;
+  }
+  .footer-logo {
+    font-family: var(--serif); font-size: 1.3rem; color: #fff; margin-bottom: 10px;
+  }
+  .footer-logo span { color: var(--gold); }
+  .footer-tagline { font-size: 0.8rem; color: rgba(255,255,255,0.45); max-width: 220px; line-height: 1.6; }
+  .footer-links h4 { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 14px; }
+  .footer-links a { display: block; font-size: 0.85rem; color: rgba(255,255,255,0.65); text-decoration: none; margin-bottom: 8px; transition: color 0.2s; }
+  .footer-links a:hover { color: #fff; }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 24px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  }
+  .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.35); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .nav-links { display: none; }
+    .form-inner { grid-template-columns: 1fr; gap: 32px; }
+    .stats-strip { gap: 32px; }
+    .floating-books { gap: 10px; }
+    .book { width: 80px; }
+    .book-cover { height: 96px; font-size: 32px; }
+    .footer-top { flex-direction: column; }
+  }
+
+  /* NOTIFICATION TOAST */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--forest); color: #fff;
+    font-size: 0.875rem; padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.4s ease;
+    z-index: 999;
+    max-width: 300px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo"><span class="leaf">✦</span> StoryForge AI</a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#create">Create a book</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <button class="nav-cta" onclick="scrollTo('#create')">Create your book →</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-badge"><span class="dot"></span> 100% unique — no two books alike</div>
+  <h1>A storybook where your child is the <em>hero</em></h1>
+  <p class="hero-sub">Tell us your child's name, personality, and friends. Our AI writes and illustrates a completely unique book — then we print and deliver it to your door.</p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="scrollTo('#create')">✦ Create your book <span style="opacity:0.7">— free preview</span></button>
+    <button class="btn-outline" onclick="scrollTo('#how')">See how it works</button>
+  </div>
+  <div class="floating-books">
+    <div class="book">
+      <div class="book-cover" style="background:#E8F4E6;">🦁</div>
+      <div class="book-label">Arjun's Jungle Adventure</div>
+    </div>
+    <div class="book">
+      <div class="book-cover" style="background:#E8F0F8;">🚀</div>
+      <div class="book-label">Luna's Space Journey</div>
+    </div>
+    <div class="book">
+      <div class="book-cover" style="background:#FDF3E3;">🧚</div>
+      <div class="book-label">Priya & the Magic Forest</div>
+    </div>
+    <div class="book">
+      <div class="book-cover" style="background:#FDE8E3;">🌊</div>
+      <div class="book-label">Rohan's Ocean Quest</div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat">
+    <div class="stat-num">24</div>
+    <div class="stat-label">Pages per book</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">12</div>
+    <div class="stat-label">AI illustrations</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">60s</div>
+    <div class="stat-label">To generate</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">3–5</div>
+    <div class="stat-label">Days delivery</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">∞</div>
+    <div class="stat-label">Unique stories</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div style="max-width:1100px; margin:0 auto;">
+    <p class="section-label reveal">How it works</p>
+    <h2 class="section-title reveal">From idea to doorstep<br>in four simple steps</h2>
+    <p class="section-sub reveal">No design skills. No waiting. Just magic.</p>
+    <div class="steps-grid reveal">
+      <div class="step-card">
+        <div class="step-number">01</div>
+        <div class="step-icon">✏️</div>
+        <div class="step-title">Tell us about your child</div>
+        <p class="step-desc">Enter their name, age, personality traits, best friends, and favourite theme. Takes about 2 minutes.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">02</div>
+        <div class="step-icon">✨</div>
+        <div class="step-title">AI writes the story</div>
+        <p class="step-desc">Our AI crafts a completely unique 1,500-word adventure starring your child — with their friends, their personality, their world.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">03</div>
+        <div class="step-icon">🎨</div>
+        <div class="step-title">Preview before you pay</div>
+        <p class="step-desc">See sample pages and illustrations before completing your order. No surprises. 100% satisfaction guaranteed.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">04</div>
+        <div class="step-icon">📦</div>
+        <div class="step-title">Printed & delivered</div>
+        <p class="step-desc">We print your hardcover or softcover book and ship it worldwide in 3–5 business days. Gift wrapping available.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ORDER FORM -->
+<section class="form-section" id="create">
+  <div class="form-inner">
+    <div class="form-left reveal">
+      <p class="section-label">Create a book</p>
+      <h2 class="section-title">Let's build your child's story</h2>
+      <p class="section-sub" style="margin-bottom: 32px;">Every book is 100% unique. The preview is completely free — you only pay when you love it.</p>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--forest-pale);color:var(--forest);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">✦</div>
+          <div>
+            <div style="font-weight:500;font-size:0.9rem;color:var(--bark);margin-bottom:3px;">Completely unique every time</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">No two books are ever the same — even with the same name and theme.</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--gold-pale);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">✦</div>
+          <div>
+            <div style="font-weight:500;font-size:0.9rem;color:var(--bark);margin-bottom:3px;">Premium print quality</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">Printed on thick, glossy paper. Built to last a lifetime on the bookshelf.</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:#FDE8E3;color:var(--coral);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">✦</div>
+          <div>
+            <div style="font-weight:500;font-size:0.9rem;color:var(--bark);margin-bottom:3px;">The perfect gift</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">Birthdays, Christmas, baby showers — a gift they'll never forget.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-right reveal">
+      <p class="form-title">Create your child's book</p>
+      <p class="form-sub-text">Free preview · No card required</p>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Child's name *</label>
+          <input type="text" id="childName" placeholder="e.g. Arjun" />
+        </div>
+        <div class="field">
+          <label>Age *</label>
+          <select id="childAge">
+            <option value="">Select age</option>
+            <option>3 years old</option>
+            <option>4 years old</option>
+            <option>5 years old</option>
+            <option selected>6 years old</option>
+            <option>7 years old</option>
+            <option>8 years old</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Personality & interests</label>
+        <input type="text" id="personality" placeholder="e.g. brave, loves dinosaurs, curious about space" />
+      </div>
+
+      <div class="field">
+        <label>Best friend or sibling's name</label>
+        <input type="text" id="friend" placeholder="e.g. Meera (optional)" />
+      </div>
+
+      <div class="field">
+        <label>Choose a theme *</label>
+        <div class="theme-picker" id="themePicker">
+          <div class="theme-opt selected" data-theme="jungle">
+            <span class="t-icon">🦁</span>
+            <span class="t-name">Jungle</span>
+          </div>
+          <div class="theme-opt" data-theme="space">
+            <span class="t-icon">🚀</span>
+            <span class="t-name">Space</span>
+          </div>
+          <div class="theme-opt" data-theme="fantasy">
+            <span class="t-icon">🧚</span>
+            <span class="t-name">Fantasy</span>
+          </div>
+          <div class="theme-opt" data-theme="ocean">
+            <span class="t-icon">🌊</span>
+            <span class="t-name">Ocean</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="form-submit" id="generateBtn" onclick="generateBook()">
+        ✦ Generate my free preview →
+      </button>
+
+      <div class="form-trust">
+        <span class="trust-item"><span class="trust-dot"></span> Free preview</span>
+        <span class="trust-item"><span class="trust-dot"></span> Pay only when you love it</span>
+        <span class="trust-item"><span class="trust-dot"></span> Ships worldwide</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div style="max-width:1100px; margin:0 auto; text-align:center;">
+    <p class="section-label reveal">Pricing</p>
+    <h2 class="section-title reveal">Simple, honest pricing</h2>
+    <p class="section-sub reveal" style="margin:0 auto;">No subscriptions required. Pay once, own it forever.</p>
+    <div class="pricing-grid reveal">
+      <div class="price-card">
+        <div class="price-icon">📗</div>
+        <div class="price-name">Softcover</div>
+        <div class="price-amount">$29 <span>/ book</span></div>
+        <p class="price-desc">Perfect for everyday reading. Lightweight and durable.</p>
+        <ul class="price-features">
+          <li><span class="check">✓</span> 24-page personalised story</li>
+          <li><span class="check">✓</span> 12 AI illustrations</li>
+          <li><span class="check">✓</span> Glossy softcover</li>
+          <li><span class="check">✓</span> Worldwide shipping</li>
+        </ul>
+        <button class="price-btn price-btn-outline" onclick="scrollTo('#create')">Create a book</button>
+      </div>
+      <div class="price-card featured">
+        <div class="featured-badge">Most popular</div>
+        <div class="price-icon">📘</div>
+        <div class="price-name">Hardcover Gift Edition</div>
+        <div class="price-amount">$39 <span>/ book</span></div>
+        <p class="price-desc">Premium hardcover — the perfect gift, ready to wrap.</p>
+        <ul class="price-features">
+          <li><span class="check">✓</span> 24-page personalised story</li>
+          <li><span class="check">✓</span> 12 AI illustrations</li>
+          <li><span class="check">✓</span> Premium hardcover</li>
+          <li><span class="check">✓</span> Gift-ready packaging</li>
+          <li><span class="check">✓</span> Worldwide shipping</li>
+        </ul>
+        <button class="price-btn price-btn-primary" onclick="scrollTo('#create')">Create a gift book →</button>
+      </div>
+      <div class="price-card">
+        <div class="price-icon">♾️</div>
+        <div class="price-name">Monthly Story Club</div>
+        <div class="price-amount">$9.99 <span>/ month</span></div>
+        <p class="price-desc">A brand new digital story every month, delivered to your inbox.</p>
+        <ul class="price-features">
+          <li><span class="check">✓</span> New story every month</li>
+          <li><span class="check">✓</span> Digital PDF + audio</li>
+          <li><span class="check">✓</span> Cancel anytime</li>
+          <li><span class="check">✓</span> 20% off print orders</li>
+        </ul>
+        <button class="price-btn price-btn-outline" onclick="showToast('Story Club coming soon! Sign up for early access.')">Join the waitlist</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section">
+  <div style="max-width:1100px; margin:0 auto;">
+    <p class="section-label reveal">Reviews</p>
+    <h2 class="section-title reveal">Parents are obsessed</h2>
+    <div class="testimonials-grid reveal">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"My daughter cried happy tears when she saw herself as the jungle queen. We've read it every night for two weeks."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">SR</div>
+          <div>
+            <div class="testi-name">Sunita R.</div>
+            <div class="testi-meta">Mother of Priya, age 6 · Mumbai</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"I bought this as a birthday gift for my nephew. His parents said he carries it to school every day to show his friends."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">MK</div>
+          <div>
+            <div class="testi-name">Mihail K.</div>
+            <div class="testi-meta">Uncle of Arjun, age 7 · London</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"The illustrations blew me away. I was expecting something generic — instead every page felt hand-crafted just for her."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">JL</div>
+          <div>
+            <div class="testi-name">Jessica L.</div>
+            <div class="testi-meta">Mother of Luna, age 5 · Toronto</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div style="max-width:1100px; margin:0 auto; text-align:center;">
+    <p class="section-label reveal">FAQ</p>
+    <h2 class="section-title reveal">Common questions</h2>
+    <div class="faq-grid reveal">
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How long does delivery take? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Once your order is placed, your book is printed within 24 hours and shipped worldwide. UK and US orders typically arrive in 3–5 business days. International orders may take 5–10 days.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Is the story really unique? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Yes — completely. Our AI generates a brand new story and illustrations for every single order. Even if you order two books with the same name and theme, they'll be entirely different stories.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Can I preview before I pay? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Absolutely. We generate a free preview of your book — including sample pages and illustrations — before you pay a single penny. You only pay when you're happy with what you see.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What age is it suitable for? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">We create books for children aged 3–8. Our AI adjusts the reading level, vocabulary, and story complexity based on the age you provide.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What if I'm not happy with my order? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">We offer a 100% satisfaction guarantee. If there's a print quality issue or the book arrives damaged, we'll reprint and reship at no extra cost.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Can I order in bulk for a class or event? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Yes! We offer discounted bulk pricing for schools, birthday parties, and events. Contact us for orders of 10 or more books.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="max-width:1100px; margin:0 auto;">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">Story<span>Forge</span> AI</div>
+        <p class="footer-tagline">Every child deserves to be the hero of their own story.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Product</h4>
+        <a href="#how">How it works</a>
+        <a href="#create">Create a book</a>
+        <a href="#pricing">Pricing</a>
+      </div>
+      <div class="footer-links">
+        <h4>Support</h4>
+        <a href="#faq">FAQ</a>
+        <a href="#">Contact us</a>
+        <a href="#">Refund policy</a>
+      </div>
+      <div class="footer-links">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Privacy policy</a>
+        <a href="#">Terms of service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 StoryForge AI · All rights reserved</span>
+      <span class="footer-copy">Made with AI · Printed with love</span>
+    </div>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ─── Utilities ────────────────────────────────────────────────────────────────
+  function scrollTo(selector) {
+    document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function toggleFaq(el) { el.classList.toggle('open'); }
+
+  function showToast(msg, duration = 4000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+  }
+
+  // Theme picker
+  document.querySelectorAll('.theme-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+  });
+
+  // ─── API Base (Netlify Functions are on the same domain) ─────────────────────
+  const API_BASE = window.location.origin;
+
+  // ─── State ────────────────────────────────────────────────────────────────────
+  let currentStory = null;
+
+  // ─── Illustration image component (Pollinations.ai) ──────────────────────────
+  // Images are generated on-demand by Pollinations. First load takes ~5-8s.
+  // After that they're cached. We show a nice loading skeleton while waiting.
+  function illustrationHTML(url, chapterTitle) {
+    const id = `img_${Math.random().toString(36).substr(2,6)}`;
+    return `
+      <div style="position:relative; border-radius:10px; overflow:hidden; margin:16px 0; background:#E8F4E6; min-height:220px;">
+        <div id="skel_${id}" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#4A8C42;font-size:0.8rem;">
+          <div style="width:28px;height:28px;border:3px solid #4A8C42;border-top-color:transparent;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
+          Painting your illustration…
+        </div>
+        <img
+          id="${id}"
+          src="${url}"
+          alt="Illustration for ${chapterTitle}"
+          style="width:100%;display:none;border-radius:10px;"
+          onload="
+            document.getElementById('skel_${id}').style.display='none';
+            this.style.display='block';
+          "
+          onerror="
+            document.getElementById('skel_${id}').innerHTML='<span style=\\'font-size:2rem;\\'>🎨</span><span style=\\'color:#7A6845;font-size:0.78rem;\\'>Illustration generating…<br>refresh to retry</span>';
+          "
+        />
+      </div>
+    `;
+  }
+
+  // ─── Preview Modal ────────────────────────────────────────────────────────────
+  function showPreviewModal(story) {
+    document.getElementById('sfModal')?.remove();
+
+    const themeEmoji = { jungle:'🦁', space:'🚀', fantasy:'🧚', ocean:'🌊', dinosaur:'🦕', pirate:'🏴‍☠️', garden:'🌸', superhero:'⚡' };
+    const totalWords = story.chapters.map(c => c.text).join(' ').split(/\s+/).filter(Boolean).length;
+    const readMins   = Math.ceil(totalWords / 150);
+
+    const chaptersHTML = story.chapters.map((ch, i) => `
+      <div style="margin-bottom:32px;${i > 0 ? 'border-top:1px solid #e8e0d0;padding-top:28px;' : ''}">
+        <div style="font-size:0.68rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#2D5A27;margin-bottom:6px;">
+          Chapter ${ch.number}
+        </div>
+        <div style="font-family:Georgia,serif;font-size:1.15rem;color:#2C1F0E;margin-bottom:14px;font-weight:600;">
+          ${ch.title}
+        </div>
+        ${illustrationHTML(ch.illustrationUrl, ch.title)}
+        <div style="font-size:0.9rem;line-height:1.9;color:#1A1208;">
+          ${ch.text.substring(0, 400)}${ch.text.length > 400 ? '…' : ''}
+        </div>
+      </div>
+    `).join('');
+
+    const modal = document.createElement('div');
+    modal.id = 'sfModal';
+    modal.style.cssText = `
+      position:fixed;inset:0;z-index:1000;
+      background:rgba(26,18,8,0.75);
+      display:flex;align-items:center;justify-content:center;
+      padding:16px;backdrop-filter:blur(6px);
+    `;
+
+    modal.innerHTML = `
+      <div style="
+        background:#FAF7F2;border-radius:18px;
+        max-width:700px;width:100%;max-height:92vh;
+        overflow-y:auto;box-shadow:0 28px 90px rgba(0,0,0,0.35);
+        display:flex;flex-direction:column;
+      ">
+
+        <!-- ── Modal header ── -->
+        <div style="
+          background:#2D5A27;padding:22px 28px;
+          border-radius:18px 18px 0 0;
+          display:flex;align-items:flex-start;justify-content:space-between;
+          position:sticky;top:0;z-index:10;
+        ">
+          <div>
+            <div style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:6px;">
+              ✦ Your personalised preview
+            </div>
+            <div style="font-family:Georgia,serif;font-size:1.35rem;color:#fff;line-height:1.3;max-width:500px;">
+              ${story.title}
+            </div>
+            <div style="font-size:0.82rem;color:rgba(255,255,255,0.65);font-style:italic;margin-top:6px;">
+              ${story.tagline}
+            </div>
+          </div>
+          <button
+            onclick="document.getElementById('sfModal').remove()"
+            style="
+              background:rgba(255,255,255,0.15);border:none;color:#fff;
+              width:34px;height:34px;border-radius:50%;
+              font-size:1rem;cursor:pointer;flex-shrink:0;margin-left:12px;
+            "
+          >✕</button>
+        </div>
+
+        <!-- ── Stats bar ── -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);background:#2C1F0E;padding:12px 28px;gap:8px;">
+          ${[
+            [`${totalWords.toLocaleString()}`, 'words'],
+            ['4', 'chapters'],
+            [`~${readMins} min`, 'read aloud'],
+            ['12', 'illustrations'],
+          ].map(([n, l]) => `
+            <div style="text-align:center;">
+              <div style="font-family:Georgia,serif;color:#C8892A;font-size:1.2rem;font-weight:600;">${n}</div>
+              <div style="font-size:0.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.06em;">${l}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- ── Illustration note ── -->
+        <div style="
+          background:#FDF3E3;border-bottom:1px solid #e8d8b0;
+          padding:10px 28px;font-size:0.78rem;color:#C8892A;
+          display:flex;align-items:center;gap:8px;
+        ">
+          <span>🎨</span>
+          <span>AI illustrations are generating below — each takes ~5 seconds on first load via <strong>Pollinations.ai</strong> (free, no limits)</span>
+        </div>
+
+        <!-- ── Chapter previews ── -->
+        <div style="padding:28px 28px 0;">
+          ${chaptersHTML}
+        </div>
+
+        <!-- ── Order section ── -->
+        <div style="
+          padding:24px 28px 28px;
+          border-top:2px solid #e8e0d0;
+          margin-top:8px;
+          background:#FAF7F2;
+          border-radius:0 0 18px 18px;
+          position:sticky;bottom:0;
+        ">
+          <div style="font-family:Georgia,serif;font-size:1.05rem;color:#2C1F0E;margin-bottom:6px;">
+            Print ${story.meta.name}'s book and ship it anywhere in the world
+          </div>
+          <div style="font-size:0.8rem;color:#7A6845;margin-bottom:16px;">
+            Secure checkout via PayPal — no account required, pay by card or wallet
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <button
+              onclick="placeOrder('softcover')"
+              id="btnSoftcover"
+              style="
+                background:#FAF7F2;color:#2C1F0E;
+                border:2px solid #d0c4b0;border-radius:12px;
+                padding:14px 12px;font-size:0.88rem;font-weight:500;cursor:pointer;
+                transition:all 0.2s;text-align:center;
+              "
+              onmouseover="this.style.borderColor='#2D5A27';this.style.background='#E8F4E6';"
+              onmouseout="this.style.borderColor='#d0c4b0';this.style.background='#FAF7F2';"
+            >
+              📗 Softcover<br>
+              <strong style="font-size:1.1rem;color:#2D5A27;">$29</strong>
+            </button>
+            <button
+              onclick="placeOrder('hardcover')"
+              id="btnHardcover"
+              style="
+                background:#2D5A27;color:#fff;
+                border:2px solid #2D5A27;border-radius:12px;
+                padding:14px 12px;font-size:0.88rem;font-weight:500;cursor:pointer;
+                transition:all 0.2s;text-align:center;position:relative;overflow:hidden;
+              "
+            >
+              <span style="
+                position:absolute;top:0;right:0;
+                background:#C8892A;color:#fff;
+                font-size:0.6rem;font-weight:600;
+                padding:3px 8px;border-radius:0 12px 0 8px;
+                letter-spacing:0.05em;
+              ">MOST POPULAR</span>
+              📘 Hardcover<br>
+              <strong style="font-size:1.1rem;">$39</strong>
+            </button>
+          </div>
+          <button
+            onclick="document.getElementById('sfModal').remove()"
+            style="
+              width:100%;background:transparent;
+              border:1px solid #d0c4b0;border-radius:10px;
+              padding:10px;color:#AE9870;font-size:0.82rem;cursor:pointer;
+            "
+          >Not ready yet — close preview</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    // Click outside to close
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  }
+
+  // ─── PayPal order ─────────────────────────────────────────────────────────────
+  async function placeOrder(productType) {
+    if (!currentStory) return;
+
+    const btnId = productType === 'softcover' ? 'btnSoftcover' : 'btnHardcover';
+    const btn   = document.getElementById(btnId);
+    const orig  = btn?.innerHTML;
+    if (btn) { btn.innerHTML = '⏳ Connecting to PayPal…'; btn.disabled = true; }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storyId:     currentStory.storyId,
+          productType,
+          childName:   currentStory.meta.name,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.stub) {
+        showToast('✅ PayPal not yet configured — add PAYPAL_CLIENT_ID + PAYPAL_CLIENT_SECRET to Netlify env vars to go live.');
+        if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+        return;
+      }
+
+      if (data.approvalUrl) {
+        // Redirect customer to PayPal hosted checkout
+        window.location.href = data.approvalUrl;
+        return;
+      }
+
+      showToast('Something went wrong creating your order. Please try again.');
+    } catch (err) {
+      showToast('Network error — please check your connection and try again.');
+    }
+
+    if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+  }
+
+  // ─── Main generate function ───────────────────────────────────────────────────
+  async function generateBook() {
+    const name        = document.getElementById('childName').value.trim();
+    const age         = document.getElementById('childAge').value;
+    const theme       = document.querySelector('.theme-opt.selected')?.dataset.theme || 'jungle';
+    const personality = document.getElementById('personality')?.value?.trim() || '';
+    const friend      = document.getElementById('friendName')?.value?.trim() || '';
+
+    if (!name) { showToast('Please enter your child\'s name first!'); return; }
+    if (!age)  { showToast('Please select your child\'s age!'); return; }
+
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+
+    // Animated button states during generation
+    const states = [
+      '✨ Crafting the story…',
+      '📖 Writing the chapters…',
+      '🎨 Adding illustration prompts…',
+      '✦ Almost ready…',
+    ];
+    let si = 0;
+    btn.textContent = states[0];
+    const stateInterval = setInterval(() => {
+      si = (si + 1) % states.length;
+      btn.textContent = states[si];
+    }, 2200);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/generate-story`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          age: parseInt(age),
+          personality,
+          friend,
+          theme,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        showToast('Error: ' + (data.error || 'Story generation failed. Please try again.'));
+        return;
+      }
+
+      currentStory = data.story;
+      showPreviewModal(data.story);
+
+    } catch {
+      showToast('Could not reach the server. Please try again in a moment.');
+    } finally {
+      clearInterval(stateInterval);
+      btn.textContent = '✦ Generate my free preview →';
+      btn.disabled = false;
+    }
+  }
+
+  // ─── Scroll reveal ────────────────────────────────────────────────────────────
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

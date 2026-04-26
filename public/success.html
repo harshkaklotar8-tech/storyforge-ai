@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Confirmed — StoryForge AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: #FAF7F2; --bark: #2C1F0E; --forest: #2D5A27;
+    --forest-pale: #E8F4E6; --gold: #C8892A; --text-muted: #7A6845;
+    --serif: 'Lora', Georgia, serif; --sans: 'DM Sans', system-ui, sans-serif;
+  }
+  body {
+    font-family: var(--sans); background: var(--cream); color: var(--bark);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: #fff; border-radius: 20px; padding: 48px 40px;
+    max-width: 520px; width: 100%; text-align: center;
+    box-shadow: 0 12px 48px rgba(44,31,14,0.1);
+  }
+  .icon { font-size: 3.5rem; margin-bottom: 20px; }
+  h1 { font-family: var(--serif); font-size: 1.8rem; margin-bottom: 10px; }
+  .sub { color: var(--text-muted); line-height: 1.7; margin-bottom: 28px; font-size: 0.95rem; }
+  .info-box {
+    background: var(--forest-pale); border-radius: 12px;
+    padding: 18px 22px; margin-bottom: 24px; text-align: left;
+  }
+  .info-box p { font-size: 0.85rem; color: var(--forest); line-height: 1.8; }
+  .info-box strong { color: var(--bark); }
+  .timeline { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; text-align: left; }
+  .step { display: flex; gap: 14px; align-items: flex-start; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--forest); color: #fff;
+    font-size: 0.75rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step-text { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+  .step-text strong { color: var(--bark); display: block; }
+  .btn {
+    display: inline-block; background: var(--forest); color: #fff;
+    border: none; border-radius: 50px; padding: 13px 28px;
+    font-family: var(--sans); font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; text-decoration: none; transition: background 0.2s;
+  }
+  .btn:hover { background: #4A8C42; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">🎉</div>
+  <h1 id="headline">Your book is on its way!</h1>
+  <p class="sub" id="subtext">
+    Thank you for your order. We've started printing your personalised storybook
+    and will email you a tracking number as soon as it ships.
+  </p>
+
+  <div class="info-box">
+    <p id="orderDetails">
+      <strong>What happens next</strong><br>
+      Your book is sent to our print partner within minutes of payment confirmation.
+      Printing takes ~24 hours, then it ships directly to you.
+    </p>
+  </div>
+
+  <div class="timeline">
+    <div class="step">
+      <div class="step-num">✓</div>
+      <div class="step-text"><strong>Payment confirmed</strong>Your order has been received.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><strong>Printing (within 24 hours)</strong>Your book goes to print.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><strong>Shipped (3–7 business days)</strong>Delivered to your door worldwide.</div>
+    </div>
+  </div>
+
+  <a href="/" class="btn">← Create another book</a>
+</div>
+
+<script>
+  // Pull details from URL params (set by PayPal return URL)
+  const params = new URLSearchParams(window.location.search);
+  const child   = params.get('child')   ? decodeURIComponent(params.get('child')) : null;
+  const product = params.get('product') || 'softcover';
+  const orderId = params.get('token')   || params.get('storyId') || null;
+
+  if (child) {
+    document.getElementById('headline').textContent  = `${child}'s book is on its way! 🎉`;
+    document.getElementById('subtext').textContent =
+      `Thank you for your order. We've started printing ${child}'s personalised storybook ` +
+      `and will email a tracking number as soon as it ships.`;
+  }
+
+  const productNames = { softcover: 'Softcover Storybook', hardcover: 'Hardcover Gift Edition', digital: 'Story Club' };
+  if (orderId) {
+    document.getElementById('orderDetails').innerHTML =
+      `<strong>Order reference: ${orderId}</strong><br>` +
+      `Product: ${productNames[product] || product}<br>` +
+      `Questions? Email <a href="mailto:hello@storyforgeai.com" style="color:#2D5A27;">hello@storyforgeai.com</a>`;
+  }
+</script>
+</body>
+</html>
